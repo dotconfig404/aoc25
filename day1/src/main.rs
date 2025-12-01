@@ -20,6 +20,8 @@ struct State {
     dials: Vec<Dial>, 
     idx: usize,
     num: i32,
+    zeroes: u32,
+    total_zeroes: u32,
 }
 
 impl State {
@@ -34,12 +36,27 @@ impl State {
     fn dial_next(&mut self) {
         let mut n = 0; 
         if self.dials[self.idx].dir == Direction::Left {
-            n = 100 - self.dials[self.idx].len
+            n = -self.dials[self.idx].len
         } else {
             n = self.dials[self.idx].len;
         }
         self.idx += 1;
-        self.num = (n + self.num) % 100;
+        self.num += n;
+
+        while self.num >= 100 {
+            self.total_zeroes += 1;
+            self.num -= 100;
+        }
+
+        while self.num < 0 {
+            self.total_zeroes += 1;
+            self.num += 100;
+        }
+
+        if self.num == 0 {
+            self.zeroes += 1;
+        }
+        //6504 too high
     }
 }
 
@@ -57,6 +74,8 @@ fn main() {
         dials: vec![],
         idx: 0,
         num: 50,
+        zeroes: 0,
+        total_zeroes: 0,
     };
     let mut dial_len: String = "".to_string();
     let mut dial_dir: Direction = Direction::Right;
@@ -64,6 +83,7 @@ fn main() {
         match c as char {
             // actually we could also use b'L' etc
             // https://doc.rust-lang.org/reference/tokens.html#byte-literals
+            // https://doc.rust-lang.org/book/appendix-02-operators.html#non-operator-symbols
             'L' => dial_dir = Direction::Left,
             'R' => dial_dir = Direction::Right,
             // here we could also use b'0'..b'9' ??
@@ -86,12 +106,9 @@ fn main() {
     let mut pw = 0;
     for _ in 0..state.dials.len() {
         state.dial_next();    
-        if state.num == 0 {
-            //print!("it's {}  ", state.num);
-            pw += 1;
-        } 
     }
-    println!("answer: {}", pw);
+    println!("answer 1: {}", state.zeroes);
+    println!("answer 2: {}", state.total_zeroes);
 }
 
 

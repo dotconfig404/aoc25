@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::{thread, time};
 
 // https://doc.rust-lang.org/book/ch06-01-defining-an-enum.html
 // https://doc.rust-lang.org/rust-by-example/trait/clone.html
@@ -34,29 +35,94 @@ impl State {
     }
 
     fn dial_next(&mut self) {
-        let mut n = 0; 
-        if self.dials[self.idx].dir == Direction::Left {
-            n = -self.dials[self.idx].len
-        } else {
-            n = self.dials[self.idx].len;
-        }
-        self.idx += 1;
-        self.num += n;
+        //let mut n = 0; 
+        //if self.dials[self.idx].dir == Direction::Left {
+        //    n = -self.dials[self.idx].len
+        //} else {
+        //    n = self.dials[self.idx].len;
+        //}
+        //self.idx += 1;
+        //println!("Iteration: {}\n Zeroes: {}, TotalZeroes: {}", self.idx,self.zeroes, self.total_zeroes);
+        //println!("Initial: Num: {}, n: {}", self.num, n);
+        ////self.num += n;
+        //println!("Postadd: Num: {}, n: {}", self.num, n);
 
-        while self.num >= 100 {
-            self.total_zeroes += 1;
-            self.num -= 100;
-        }
+        let mut l = self.dials[self.idx].len;
+        let mut d = self.dials[self.idx].dir.clone();
+        while l != 0 {
+            if  d == Direction::Left {
+                if self.num - l > 0{
+                    self.num += l;
+                } else if l < -99 {
+                    l += 99;
+                    self.total_zeroes += 1;
+                } else {
+                    l = 0;
+                    self.total_zeroes += 1;
+                    self.zeroes += 1;
+                }
+            }
+            if  d == Direction::Right {
+                if self.num + l < 100 {
+                    self.num += l;
+                } else if l > 99{
+                    l -= 100;
+                    self.total_zeroes += 1;
+                } else {
+                    l = 0;
+                    self.total_zeroes += 1;
+                    self.zeroes += 1;
+                }
+            }
+            // add n if not going above 100
+            //if n > 0 && n + self.num <= 99 {
+            //    self.num += n; 
+            //    n = 0;
+            //// else subtract
+            //} else if n > 0 {
+            //    n -= 100;
+            //    self.total_zeroes +=1;
+            //} 
+            //if n < 0 && n - self.num >= 0 {
+            //    self.num -= n;
+            //    n = 0;
+            //} else if n < 0 {
+            //    n += 100;
+            //    self.total_zeroes += 1;
+            //}
 
-        while self.num < 0 {
-            self.total_zeroes += 1;
-            self.num += 100;
+            //if self.num > 99 {
+            //    self.num -=100;
+            //    self.total_zeroes += 1;
+            //} else if self.num < 0 {
+            //    self.num += 100;
+            //    self.total_zeroes += 1;
+            //}
+            //if self.num == 0 {
+            //    self.total_zeroes += 0;
+            //    self.zeroes += 0;
+            //}
         }
+        //while self.num >= 100 {
+        //    thread::sleep(time::Duration::from_millis(100));
+        //    println!("Too High: Num: {}, n: {}", self.num, n);
+        //    self.total_zeroes += 1;
+        //    self.num -= 100;
+        //}
 
-        if self.num == 0 {
-            self.zeroes += 1;
-        }
-        //6504 too high
+        //while self.num < 0 {
+        //    thread::sleep(time::Duration::from_millis(100));
+        //    println!("Too Low: Num: {}, n: {}", self.num, n);
+        //    self.total_zeroes += 1;
+        //    self.num += 100;
+        //}
+        //if self.num == 0 {
+        //    self.zeroes += 1;
+        //}
+        //println!("Final: Num: {}, n: {}", self.num, n);
+        //println!("Done. Zeroes: {}, TotalZeroes: {}\n", self.zeroes, self.total_zeroes);
+
+        //6504 too high (so is 6503)
     }
 }
 
@@ -103,7 +169,6 @@ fn main() {
 
 
     // STATE PROCESSING
-    let mut pw = 0;
     for _ in 0..state.dials.len() {
         state.dial_next();    
     }

@@ -1,6 +1,7 @@
 #![allow(unused)]
 use std::env;
 use std::fs;
+use std::collections::HashMap;
 use std::cmp::Ordering;
 // predlude is a collection of names that are automatically brought into the 
 // scope of every module in a cracte
@@ -8,6 +9,7 @@ use std::cmp::Ordering;
 // https://docs.rs/nannou/latest/nannou/prelude/index.html
 // https://guide.nannou.cc/tutorials/basics/anatomy-of-a-nannou-app
 use nannou::prelude::*;
+use std::path::PathBuf;
 
 
 fn main() {
@@ -19,19 +21,43 @@ fn main() {
         .simple_window(view)
         .run();
 }
-// model: internal state
-// view: describes how to present the model
-// controller: how to update the model on certain events
 
 // the initial instance of the Model is created here, basically a setup function
 fn model(app: &App) -> Model {
+    //
+    // BANKS
+    //
     let example = "818181911112111";
     let bank = get_bank_from_str(&example);
     let mut banks = Vec::new();
+    //
+    // TEXTURES
+    //
+    //let assets = app.assets_path().unwrap();
+    //let img_path = assets.join("batteries").join("1J_Battery.png");
+    //println!("Trying to load texture from {:?}", img_path);
+    // damn, the docs are not good! : the asset path needs to be manually copied
+    // to target/debug. no thanks.
+    //let textures = wgpu::Texture::from_path(app, img_path).unwrap();
+    // using relative path from execution point instead
+    let batteries_path: PathBuf = ["assets", "batteries"].iter().collect();
+    let states = ["1J", "2J", "3J", "4J", "5J", "6J", "7J", "8J", "9J", "off" ].into_iter();
+    let mut battery_textures = HashMap::new();
+    for state in states {
+        let mut battery_texture_name = String::from(state);
+        battery_texture_name.push_str("_Battery.png");
+        let battery_path = batteries_path.join(battery_texture_name);
+        println!("Trying to load texture from {:?}", battery_path);
+        battery_textures.insert(state, wgpu::Texture::from_path(app, battery_path).unwrap());
+    }
+    //battery_textures.insert(&state.clone(), textures);
+
+
     Model {
         banks: banks,
     }
 }
+
 // application state. events, such as mouse presses, key presses or timed updates
 struct Model {
     banks: Vec<Bank>,
@@ -46,6 +72,7 @@ struct Bank {
 struct Battery {
     joltage: u32,
 }
+
 
 fn get_bank_from_str(bank_str: &str) -> Bank {
     let mut bank = Bank {
@@ -79,16 +106,7 @@ fn view(app: &App, model: &Model, frame: Frame){
     let draw = app.draw();
     draw.background().color(rgb(0.1, 0.1, 0.1));
     let win = app.window_rect();
-    let r = Rect::from_w_h(50.0f32, 100.0f32);
-    let r2 = Rect::from_w_h(30.0f32, 10.0f32).above(r);
-    draw.rect()
-    .xy(r.xy())
-    .wh(r.wh())
-    .color(TEAL);
-    draw.rect()
-    .xy(r2.xy())
-    .wh(r2.wh())
-    .color(TEAL);
+    //draw.texture(&model.battery_imgs[0]);
     draw.to_frame(app, &frame).unwrap();
 }
 

@@ -67,6 +67,12 @@ struct Bank {
     batteries: Vec<Battery>,
 }
 
+// lifetimes need to be explicit when dealing with structs
+// https://users.rust-lang.org/t/why-we-need-lifetime-annotation-in-a-struct/50495/8#:~:text=I%20think%20the%20question%20boils%20down%20to%20%22Why%20aren%27t%20lifetimes%20elided%20for%20structs%3F%22%2C
+// "some of the elisions were added with the Rust 2018 edition" ... 
+// https://users.rust-lang.org/t/perpetual-n00b-struggling-with-ownership-again/46920/2#:~:text=You%27re%20not%20allowed%20to%20use%20references%20in%20structs%20until%20you%20think%20Rust%20is%20easy%2E%20They%27re%20the%20evil%2Dhardmode%20of%20Rust%20that%20will%20ruin%20your%20day
+// "You're not allowed to use references in structs until you think Rust is easy. They're the
+// evil-hardmode of Rust that will ruin your day."
 #[derive(Debug, Clone, Copy)]
 struct Battery {
     joltage: u32,
